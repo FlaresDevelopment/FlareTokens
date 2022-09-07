@@ -1,16 +1,22 @@
 package net.devtm.tmmobcoins.util;
 
+import net.devtm.tmmobcoins.TMMobCoins;
 import net.devtm.tmmobcoins.files.FilesManager;
+import net.devtm.tmmobcoins.service.LocaleService;
 import net.tmmobcoins.lib.base.MessageHandler;
 import net.tmmobcoins.lib.menu.Menu;
 import net.tmmobcoins.lib.menu.item.ItemHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
 
 public class Utils {
@@ -29,8 +35,23 @@ public class Utils {
   public HashMap<UUID, Double> multiplierHistory = new HashMap<>();
   public HashMap<UUID, Long> multiplierTime = new HashMap<>();
 
+  public static FileConfiguration readConfig(String file) {
+        /*System.out.println(file);
+        System.out.println(new File(TMPanels.PLUGIN.getPlugin().getDataFolder(), file));
+        System.out.println(YamlConfiguration.loadConfiguration(new File(TMPanels.PLUGIN.getPlugin().getDataFolder(), file)).contains("menu_command"));
+        System.out.println(TMPanels.PLUGIN.getPlugin().getConfig().contains("menu_command"));*/
+    return YamlConfiguration.loadConfiguration(new File(TMMobCoins.PLUGIN.getPlugin().getDataFolder(), file));
+  }
+  public static FileConfiguration readConfig(Path file) {
+        /*System.out.println(file);
+        System.out.println(new File(TMPanels.PLUGIN.getPlugin().getDataFolder(), file));
+        System.out.println(YamlConfiguration.loadConfiguration(new File(TMPanels.PLUGIN.getPlugin().getDataFolder(), file)).contains("menu_command"));
+        System.out.println(TMPanels.PLUGIN.getPlugin().getConfig().contains("menu_command"));*/
+    return YamlConfiguration.loadConfiguration(new File(file.toString()));
+  }
+
   public void runnable(JavaPlugin plugin) {
-    new BukkitRunnable() {
+    /*new BukkitRunnable() {
       @Override
       public void run() {
         if(!FilesManager.ACCESS.getConfig().getConfig().getString("shop.settings.shop_type").equalsIgnoreCase("rotating")) return;
@@ -47,77 +68,7 @@ public class Utils {
           FilesManager.ACCESS.getData().saveConfig();
         }
       }
-    }.runTaskTimerAsynchronously(plugin, 1, 1);
-  }
-
-  public void showMainShop(Player player) {
-
-    if (!player.hasPermission("mobcoins.shop")) return;
-
-    Configuration config = FilesManager.ACCESS.getConfig().getConfig();
-    if(!FilesManager.ACCESS.getConfig().getConfig().getString("shop.settings.shop_type").equalsIgnoreCase("rotating")) {
-      Menu menu = new Menu(player, MessageHandler.chat(config.getString("shop.menu_title")).placeholderAPI(player).toStringColor(), config.getInt("shop.size"));
-      for (String s1 : config.getConfigurationSection("shop.items").getKeys(false))
-        menu.assignItems(new ItemHandler().setPlayer(player.getPlayer()).autoGetter(config, "shop.items", s1));
-      menu.updateInventory();
-      player.openInventory(menu.inventory);
-    } else {
-      Menu menu = new Menu(player, MessageHandler.chat(config.getString("shop.menu_title")).placeholderAPI(player).toStringColor(), config.getInt("shop.size"));
-      for (String s1 : config.getConfigurationSection("shop.items").getKeys(false))
-        menu.assignItems(new ItemHandler().setPlayer(player.getPlayer()).autoGetter(config, "shop.items", s1));
-      for(String s : FilesManager.ACCESS.getData().getConfig().getStringList("refresh_data.items_in_storage.normal"))
-        menu.assignItems(new ItemHandler().setPlayer(player.getPlayer()).autoGetter(config, "shop.items", s.split(";")[0]).setSlots(Integer.parseInt(s.split(";")[1])));
-      for(String s : FilesManager.ACCESS.getData().getConfig().getStringList("refresh_data.items_in_storage.special"))
-        menu.assignItems(new ItemHandler().setPlayer(player.getPlayer()).autoGetter(config, "shop.items", s.split(";")[0]).setSlots(Integer.parseInt(s.split(";")[1])));
-      menu.updateInventory();
-      player.openInventory(menu.inventory);
-    }
-  }
-
-  public void regenerateItems(@NotNull Configuration config, String type) {
-    if(!FilesManager.ACCESS.getConfig().getConfig().getString("shop.settings.shop_type").equalsIgnoreCase("rotating")) return;
-    HashMap<String, Integer> dataNormal = new HashMap<>();
-    HashMap<String, Integer> dataSpecial = new HashMap<>();
-    List<String> dataNormalSave = new ArrayList<>();
-    List<String> dataSpecialSave = new ArrayList<>();
-    /* Read data */
-    List<Integer> normalSlots = config.getIntegerList("shop.settings.rotating_item.settings.normal.slots");
-    List<Integer> specialSlots = config.getIntegerList("shop.settings.rotating_item.settings.special.slots");
-    List<String> normalItemList = config.getStringList("shop.settings.rotating_item.settings.normal.item_list");
-    List<String> specialItemList = config.getStringList("shop.settings.rotating_item.settings.special.item_list");
-    /* process */
-    boolean generateProcess = true;
-    int cursor = 0;
-    Random rand = new Random();
-    while (generateProcess) {
-      if (type.equalsIgnoreCase("normal")) {
-        if (cursor < normalSlots.size()) {
-          int gen = rand.nextInt(normalItemList.size());
-          if (!dataNormal.containsKey(normalItemList.get(gen))) {
-            dataNormal.put(normalItemList.get(gen), normalSlots.get(cursor));
-            dataNormalSave.add(normalItemList.get(gen) + ";" + normalSlots.get(cursor++));
-          }
-        } else {
-          generateProcess = false;
-        }
-      } else {
-        if (cursor < specialSlots.size()) {
-          int gen = rand.nextInt(specialItemList.size());
-          if (!dataSpecial.containsKey(specialItemList.get(gen))) {
-            dataSpecial.put(specialItemList.get(gen), specialSlots.get(cursor));
-            dataSpecialSave.add(specialItemList.get(gen) + ";" + specialSlots.get(cursor++));
-          }
-        } else {
-          generateProcess = false;
-        }
-      }
-    }
-    /* save items */
-    if (type.equalsIgnoreCase("normal"))
-      FilesManager.ACCESS.getData().getConfig().set("refresh_data.items_in_storage.normal", dataNormalSave);
-    else
-      FilesManager.ACCESS.getData().getConfig().set("refresh_data.items_in_storage.special", dataSpecialSave);
-    FilesManager.ACCESS.getData().saveConfig();
+    }.runTaskTimerAsynchronously(plugin, 1, 1);*/
   }
 
   /**

@@ -2,7 +2,9 @@ package net.devtm.tmmobcoins.listener;
 
 import net.devtm.tmmobcoins.API.MobCoinReceiveEvent;
 import net.devtm.tmmobcoins.TMMobCoins;
+import net.devtm.tmmobcoins.exceptions.FailedToFindInConfig;
 import net.devtm.tmmobcoins.files.FilesManager;
+import net.devtm.tmmobcoins.service.ServiceHandler;
 import net.devtm.tmmobcoins.util.MobCoinsPlayer;
 import net.devtm.tmmobcoins.util.StorageAccess;
 import net.tmmobcoins.lib.CBA.TMPL;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.logging.Level;
 
 public class BasicListener implements Listener {
     @EventHandler
@@ -33,21 +36,21 @@ public class BasicListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void mobcoinsReceiveEvent(MobCoinReceiveEvent event) {
+        /* Checkers */
         if (event.isCancelled()) return;
         if (event.getEntity() == null) return;
         Configuration drops = FilesManager.ACCESS.getDrops().getConfig();
 
-        if (!FilesManager.ACCESS.getDrops().getConfig().contains("entity." + event.getEntity().getName().toUpperCase(Locale.ROOT)))
-            return;
+        /* Drop Actions */
+        if (!FilesManager.ACCESS.getDrops().getConfig().contains("entity." + event.getEntity().getName().toUpperCase(Locale.ROOT) + ".drop_action")) return;
         List<String> l = new ArrayList<>();
-
-        for (String miniList : drops.getStringList("entity." + event.getEntity().getName().toUpperCase(Locale.ROOT) + ".drop_action")) {
+        for (String miniList : drops.getStringList("entity." + event.getEntity().getName().toUpperCase(Locale.ROOT) + ".drop_action"))
             l.add(miniList.replace("%pl_mobcoins%", event.getObtainedAmount() + ""));
-        }
         TMPL tmpl = new TMPL();
         tmpl.setCode(l);
         tmpl.process(event.getPlayer());
 
+        /* Drop Value */
         if (!drops.contains("entity." + event.getEntity().getName().toUpperCase(Locale.ROOT) + ".drop_value")) return;
         event.getMobCoinsPlayer().addMobcoins(event.getObtainedAmount());
         event.getMobCoinsPlayer().uploadPlayer();
@@ -56,23 +59,30 @@ public class BasicListener implements Listener {
     @EventHandler
     private void onPlayerKillEntity(EntityDeathEvent event) {
         if (event.getEntity().getKiller() == null) return;
-        MobCoinsPlayer tp = StorageAccess.getAccount(event.getEntity().getKiller().getUniqueId());
+
+        /* Check if the mob exists in config */
+        String configPath = ServiceHandler.SERVICE.getEventService().mobVerify(event);
+        if(configPath == null) return;
+
+        MobCoinsPlayer profile = StorageAccess.getAccount(event.getEntity().getKiller().getUniqueId());
         Configuration drops = FilesManager.ACCESS.getDrops().getConfig();
         Entity entity = event.getEntity();
         Player player = event.getEntity().getKiller();
-        double mobcoins;
 
-        if(drops.contains("entity." + entity.getName().toUpperCase(Locale.ROOT) + ".drop_value"))
-            mobcoins = Double.parseDouble(String.format("%.2f", generateNumber(drops, entity.getName()) * tp.getMultiplier() * FilesManager.ACCESS.getData().getConfig().getDouble("global_multiplier")));
-        else
-            mobcoins = 0;
+        if(profile == null)
+            TMMobCoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, "The player profile could not be found!");
 
-        MobCoinReceiveEvent eventMobcoins = new MobCoinReceiveEvent(player, tp, entity, mobcoins);
+        double amount = drops.contains("entity." + entity.getName().toUpperCase(Locale.ROOT) + ".drop_value") ?
+                Double.parseDouble(String.format("%.2f", generateNumber(drops, entity.getName()) * profile.getMultiplier() * FilesManager.ACCESS.getData().getConfig().getDouble("global_multiplier"))) : 0;
 
-        if(drops.contains("entity." + event.getEntity().getName().toUpperCase(Locale.ROOT) + ".requirement"))
-            if(!new CodeArray().addConditions(drops.getString("entity." + event.getEntity().getName().toUpperCase(Locale.ROOT) + ".requirement")).checkRequierment(event.getEntity().getKiller()))
+        MobCoinReceiveEvent eventMobcoins = new MobCoinReceiveEvent(player, profile, entity, amount);
+
+        if(drops.contains("entity." + event.getEntity().getName().toUpperCase(Locale.ROOT) + ".requirement")) {
+            CodeArray ca = new CodeArray();
+            ca.addConditions(drops.getString("entity." + event.getEntity().getName().toUpperCase(Locale.ROOT) + ".requirement"));
+            if (!ca.checkRequierment(player))
                 eventMobcoins.setCancelled(true);
-
+        }
         Bukkit.getPluginManager().callEvent(eventMobcoins);
     }
 
@@ -116,7 +126,6 @@ public class BasicListener implements Listener {
             parsedIntervalToIntegerTwo = Integer.parseInt(interval[1]);
         } catch (NumberFormatException e) {
             sendConsoleError(entityConfigPath);
-            //e.printStackTrace();
         }
 
         if (parsedIntervalToIntegerOne == null || parsedIntervalToIntegerTwo == null) {
@@ -130,17 +139,16 @@ public class BasicListener implements Listener {
         switch (definition[0].toLowerCase(Locale.ROOT)) {
             case "random_number":
                 return randomNextInt;
-            case "random_decimal":
+             case "random_decimal":
                 return rand.nextDouble() * randomNextInt;
         }
         return defaultNumber;
     }
 
     private void sendConsoleError(String entityConfigPath) {
-        TMMobCoins.PLUGIN.getPlugin().getServer().getConsoleSender().sendMessage(String.format(
-                "[TMMobCoins] %sERROR: There is a not supported number used in your drops.yml config at %s%s%s. "
+        ServiceHandler.SERVICE.getLoggerService().log(Level.SEVERE, String.format(
+                "There is a not supported number used in your drops.yml config at %s%s%s. "
                         + "Only rounded numbers are supported for this option",
-                ChatColor.RED,
                 ChatColor.GOLD,
                 entityConfigPath,
                 ChatColor.RED

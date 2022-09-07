@@ -5,6 +5,8 @@ import net.devtm.tmmobcoins.command.ShopMenuCommand;
 import net.devtm.tmmobcoins.command.MobcoinsCommand;
 import net.devtm.tmmobcoins.files.FilesManager;
 import net.devtm.tmmobcoins.listener.BasicListener;
+import net.devtm.tmmobcoins.listener.ShopCommand;
+import net.devtm.tmmobcoins.service.ServiceHandler;
 import net.devtm.tmmobcoins.util.PlaceholderAPI;
 import net.devtm.tmmobcoins.util.PlaceholdersClass;
 import net.devtm.tmmobcoins.util.Utils;
@@ -46,19 +48,15 @@ public enum TMMobCoins {
     startLog();
     usebStats();
     commandsSetup();
-
-    /* Make the tokens object */
-
-    plugin.mobcoinsAPI = new MobcoinsAPI();
-
+    ServiceHandler.SERVICE.getLoggerService().fileSetup();
     /* init the shop runner */
-    if(FilesManager.ACCESS.getConfig().getConfig().getString("shop.settings.shop_type").equalsIgnoreCase("rotating")) {
+    /*if(FilesManager.ACCESS.getConfig().getConfig().getString("shop.settings.shop_type").equalsIgnoreCase("rotating")) {
       utils.runnable(plugin);
       if(FilesManager.ACCESS.getData().getConfig().getStringList("refresh_data.items_in_storage.normal").isEmpty())
         utils.regenerateItems(FilesManager.ACCESS.getConfig().getConfig(), "normal");
       if(FilesManager.ACCESS.getData().getConfig().getStringList("refresh_data.items_in_storage.special").isEmpty())
         utils.regenerateItems(FilesManager.ACCESS.getConfig().getConfig(), "special");
-    }
+    }*/
   }
 
   /**
@@ -146,7 +144,7 @@ public enum TMMobCoins {
    */
   private void registerListener() {
     final Listener[] listeners = new Listener[]{
-        new BasicListener()
+        new BasicListener(), new ShopCommand()
     };
 
     Arrays.stream(listeners)

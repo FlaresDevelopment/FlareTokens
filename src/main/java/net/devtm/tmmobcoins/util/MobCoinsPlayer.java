@@ -1,5 +1,6 @@
 package net.devtm.tmmobcoins.util;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class MobCoinsPlayer {

@@ -2,6 +2,7 @@ package net.devtm.tmmobcoins.command;
 
 import net.devtm.tmmobcoins.TMMobCoins;
 import net.devtm.tmmobcoins.files.FilesManager;
+import net.devtm.tmmobcoins.service.ServiceHandler;
 import net.devtm.tmmobcoins.util.MobCoinsPlayer;
 import net.devtm.tmmobcoins.util.StorageAccess;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -16,6 +17,7 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class MobcoinsCommand extends BukkitCommand {
 
@@ -67,26 +69,14 @@ public class MobcoinsCommand extends BukkitCommand {
     @Override
     public boolean execute(CommandSender commandSender, String label, String[] args) {
         if(args.length < 1) {
-            if(TMMobCoins.PLUGIN.isEnabledMenu()
-                    && (commandSender instanceof Player) && commandSender.hasPermission("tmmobcoins.shop")
-                    && FilesManager.ACCESS.getConfig().getConfig().getBoolean("shop.settings.default_command")) {
-
-                Configuration config = FilesManager.ACCESS.getConfig().getConfig();
-                Menu menu = new Menu((Player) commandSender, MessageHandler.chat(config.getString("shop.menu_title")).placeholderAPI(commandSender).toStringColor(), config.getInt("shop.size"));
-                for (String s1 : config.getConfigurationSection("shop.items").getKeys(false))
-                    menu.assignItems(new ItemHandler().setPlayer(((Player) commandSender).getPlayer()).autoGetter(config, "shop.items", s1));
-                menu.updateInventory();
-                ((Player) commandSender).openInventory(menu.inventory);
-            } else {
-                help(commandSender);
-            }
+            help(commandSender);
         } else {
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "reload":
                     if(!commandSender.hasPermission("tmmobcoins.command.reload")) { commandSender.sendMessage(MessageHandler.message("basic.no_permission").prefix().toStringColor()); return true;}
                     if(args.length > 1) {
-                        TMMobCoins.PLUGIN.getUtils().regenerateItems(FilesManager.ACCESS.getConfig().getConfig(), "normal");
-                        TMMobCoins.PLUGIN.getUtils().regenerateItems(FilesManager.ACCESS.getConfig().getConfig(), "special");
+                        //TMMobCoins.PLUGIN.getUtils().regenerateItems(FilesManager.ACCESS.getConfig().getConfig(), "normal");
+                        //TMMobCoins.PLUGIN.getUtils().regenerateItems(FilesManager.ACCESS.getConfig().getConfig(), "special");
                         FilesManager.ACCESS.getData().getConfig().set("refresh_data.normal", System.currentTimeMillis()
                                 + (FilesManager.ACCESS.getConfig().getConfig().getInt("shop.settings.rotating_item.settings.normal.refresh_time") * 1000L));
                         FilesManager.ACCESS.getData().getConfig().set("refresh_data.special", System.currentTimeMillis()
@@ -101,6 +91,8 @@ public class MobcoinsCommand extends BukkitCommand {
                     commandSender.sendMessage(MessageHandler.message("commands.reload.mysql").prefix().toStringColor());
                     break;
                 case "set":
+                    System.out.println("WTF?");
+                    ServiceHandler.SERVICE.getLoggerService().log(Level.SEVERE, "Some set command faild view the logs for more info!");
                     if(!commandSender.hasPermission("tmmobcoins.command.set")) { commandSender.sendMessage(MessageHandler.message("basic.no_permission").prefix().toStringColor()); return true;}
                     if(args.length > 2) {
                         try {
@@ -115,7 +107,7 @@ public class MobcoinsCommand extends BukkitCommand {
                                         .placeholderAPI(commandSender).toStringColor());
                             tp.setMobcoins(amount); tp.uploadPlayer();
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            ServiceHandler.SERVICE.getLoggerService().log(Level.SEVERE, e, "Some set command faild view the logs for more info!");
                             commandSender.sendMessage(MessageHandler.message("commands.set.help").prefix().toStringColor());
                         }
                     } else commandSender.sendMessage(MessageHandler.message("commands.set.help").prefix().toStringColor());
