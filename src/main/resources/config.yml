@@ -1,6 +1,5 @@
-
-#  █░█ █ █▀▀ █░█   █▀█ █░█ ▄▀█ █░░ █ ▀█▀ █▄█   █▀▄▀█ █▀█ █▄▄ █▀▀ █▀█ █ █▄░█ █▀   █▀█ █░░ █░█ █▀▀ █ █▄░█
-#  █▀█ █ █▄█ █▀█   ▀▀█ █▄█ █▀█ █▄▄ █ ░█░ ░█░   █░▀░█ █▄█ █▄█ █▄▄ █▄█ █ █░▀█ ▄█   █▀▀ █▄▄ █▄█ █▄█ █ █░▀█
+#  █░█ █ █▀▀ █░█   █▀█ █░█ ▄▀█ █░░ █ ▀█▀ █▄█   ▀█▀ █▀█ █▄▀ █▀▀ █▄░█ █▀   █▀█ █░░ █░█ █▀▀ █ █▄░█
+#  █▀█ █ █▄█ █▀█   ▀▀█ █▄█ █▀█ █▄▄ █ ░█░ ░█░   ░█░ █▄█ █░█ ██▄ █░▀█ ▄█   █▀▀ █▄▄ █▄█ █▄█ █ █░▀█
 #  By TMDevelopment | devtm.net | discord.devtm.net |
 
 enable_debug: false
@@ -9,16 +8,10 @@ allow_bstats: true
 
 select_locale: en.yml
 
-hook_into_stacker: false
-
-main_command_aliases:
-  - "tmmobcoins"
-  - "mc"
-
 storage_type:
   # This will make the mobcoins read slowly, it VERY usefully/necessary for not make reads to the database if this is set to 0 will lag out the server
   read_delay: 5
-  # Choose (file|database|sqlite) read more here: https://mobcoins.devtm.net/basic-setup/connecting-to-a-database
+  # Choose (file|mysql|sqlite)
   type: file
   # Database drivers available only for database storage type
   driver: MySql
@@ -28,15 +21,34 @@ storage_type:
     database: "test"
     username: "root"
     password: ""
-    table: "tmmobcoins"
+    table: "tmtokens"
 
 first_join_give_mobcoins: 0
 
 shop:
-  # Read more here: https://mobcoins.devtm.net/basic-setup/making-the-shop
-  # Every change in the setting will require a restart or reload (Plugman should work fine)
-  settings:
-    # This could use the mobcoins base command (ex: /mobcoins) to open the shop
-    open_command: "mobcoinshop"
-    shop_type: normal
+  # Rather if you want to have the shop enabled.
+  enable: true
+  # This could use the mobcoins base command (ex: /mobcoins) to open the shop.
+  open_command: "tokenshop"
+  # Add the shop file name (Example for "shop.yml" just shop). (Shops are added in the shop folder)
+  main_shop: main
+
+# If the cooldown is 0 it will be disabled
+physical_coin_cooldown: 5
+
+# The coins have two placeholders
+#  %pl_amount% -> the amount of tokens
+#  %pl_created_by% -> the player how withdraw
+#  %pl_time% -> the time when the token was made
+physical_coin:
   enabled: false
+  material: SUNFLOWER
+  data: 0
+  display_name: "<GRADIENT:#F2994A-#F2C94C>Token</GRADIENT>"
+  lore:
+    - "&7"
+    - " &7This has %pl_amount% tokens that"
+    - " &7you can deposit back into"
+    - " &7your account."
+    - "&7"
+    - " &aRight-Click to withdraw"

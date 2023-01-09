@@ -2,7 +2,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <artifactId>TMMobcoins</artifactId>
+  <artifactId>TMTokens</artifactId>
 
   <groupId>devtm.net</groupId>
   <modelVersion>4.0.0</modelVersion>
@@ -35,6 +35,18 @@
       <version>1.7.1</version>
       <scope>provided</scope>
     </dependency>
+    <!--Stackers-->
+    <dependency>
+      <groupId>dev.rosewood</groupId>
+      <artifactId>rosestacker</artifactId>
+      <version>1.4.13</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.bgsoftware</groupId>
+      <artifactId>WildStackerAPI</artifactId>
+      <version>3.8.1</version>
+    </dependency>
   </dependencies>
 
   <properties>
@@ -43,6 +55,16 @@
   </properties>
 
   <repositories>
+    <!--Stackers-->
+      <repository>
+        <id>rosewood-repo</id>
+        <url>https://repo.rosewooddev.io/repository/public/</url>
+      </repository>
+      <repository>
+        <id>bg-repo</id>
+        <url>https://repo.bg-software.com/repository/api/</url>
+      </repository>
+    <!--IMPORTANT-->
     <repository>
       <id>placeholderapi</id>
       <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>

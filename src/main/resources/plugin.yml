@@ -1,7 +1,9 @@
-name: TMMobCoins
-version: 2.0
-main: net.devtm.tmmobcoins.TMMobCoinsPlugin
+name: TMTokens
+version: 3.0.4
+main: net.devtm.tmtokens.TMTokensPlugin
 author: TMDevelopment
-description: Best Mob coins plugin plugin
+description: One of the best tokens plugin available on the market
 website: devtm.net
 api-version: 1.13
+commands:
+  tokens:
