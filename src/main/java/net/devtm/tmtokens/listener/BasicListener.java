@@ -44,7 +44,8 @@ public class BasicListener implements Listener {
                         .replace("%pl_time%", (cooldown.get(event.getPlayer().getUniqueId()) - System.currentTimeMillis() + newTime+1 )/1000 + "").toStringColor());
                 return;
             }
-        if(Objects.isNull(event.getPlayer().getInventory().getItemInMainHand().getItemMeta())) return;
+        
+        if(Objects.isNull(event.getPlayer().getInventory().getItemInHand().getItemMeta())) return;
 
         NamespacedKey key = new NamespacedKey(TMTokens.PLUGIN.getPlugin(), "coin");
         if(!event.getAction().equals(Action.RIGHT_CLICK_BLOCK) || !event.getAction().equals(Action.RIGHT_CLICK_AIR))
