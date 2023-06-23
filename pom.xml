@@ -2,9 +2,9 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <artifactId>TMMobcoins</artifactId>
+  <artifactId>FlareTokens</artifactId>
 
-  <groupId>devtm.net</groupId>
+  <groupId>flares.dev</groupId>
   <modelVersion>4.0.0</modelVersion>
 
   <dependencies>
@@ -14,26 +14,40 @@
       <version>1.18.1-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>1.18.22</version>
       <scope>provided</scope>
     </dependency>
-
     <dependency>
       <artifactId>placeholderapi</artifactId>
       <groupId>me.clip</groupId>
       <scope>provided</scope>
       <version>2.10.9</version>
     </dependency>
-
     <dependency>
       <groupId>com.github.MilkBowl</groupId>
       <artifactId>VaultAPI</artifactId>
       <version>1.7.1</version>
       <scope>provided</scope>
+    </dependency>
+    <!--Stackers-->
+    <dependency>
+      <groupId>dev.rosewood</groupId>
+      <artifactId>rosestacker</artifactId>
+      <version>1.4.13</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.bgsoftware</groupId>
+      <artifactId>WildStackerAPI</artifactId>
+      <version>3.8.1</version>
+    </dependency>
+    <dependency>
+      <groupId>net.flarepowered</groupId>
+      <artifactId>flarepowered</artifactId>
+      <version>23.6.23</version>
     </dependency>
   </dependencies>
 
@@ -43,6 +57,16 @@
   </properties>
 
   <repositories>
+    <!--Stackers-->
+      <repository>
+        <id>rosewood-repo</id>
+        <url>https://repo.rosewooddev.io/repository/public/</url>
+      </repository>
+      <repository>
+        <id>bg-repo</id>
+        <url>https://repo.bg-software.com/repository/api/</url>
+      </repository>
+    <!--IMPORTANT-->
     <repository>
       <id>placeholderapi</id>
       <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
@@ -50,6 +74,10 @@
     <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
+    </repository>
+    <repository>
+      <id>github-maiky</id>
+      <url>https://maven.pkg.github.com/FlaresDevelopment/*</url>
     </repository>
     <repository>
       <id>spigot-repo</id>

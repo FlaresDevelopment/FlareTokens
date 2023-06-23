@@ -1,6 +1,6 @@
-# Here you can configure the mob drops
-
-# Read more here: https://mobcoins.devtm.net/drops/get-started
+# Here you can customize the drops for any mobs or types!
+#
+# To get started take a look on our wiki: https://mobcoins.flares.dev/drops/drops
 
 entity:
 #  ZOMBIE:

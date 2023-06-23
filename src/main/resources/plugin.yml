@@ -1,7 +1,15 @@
-name: TMMobCoins
-version: 1.0
-main: net.devtm.tmmobcoins.TMMobCoinsPlugin
-author: TMDevelopment
-description: Best Mob coins plugin plugin
-website: devtm.net
+name: FlareTokens
+version: BETA-3.1
+main: net.flares.flaretokens.TMMobCoinsPlugin
+author: FlaresDevelopment
+description: Best tokens plugin
+website: "https://flares.dev"
 api-version: 1.13
+commands:
+  tokens:
+    description: "The main command for FlareTokens"
+    aliases:
+      - tmtokens
+      - flaretokens
+      - ft
+      - coins
